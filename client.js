@@ -13,7 +13,7 @@ const prefix = '$';
 // ----- Get API Tokens from JSON ----- //
 
 try {
-    var json_string = fs.readFileSync("./api_tokens.json", 'utf-8');
+    var json_string = fs.readFileSync("./tokens.json", 'utf-8');
 } catch (error) {
     console.error("[ERROR]: API Keys JSON could not be read!");
     console.error(error);
@@ -30,10 +30,6 @@ try {
 const bot_token = api_tokens.token;
 const client_id = api_tokens.client_id;
 const client_secret = api_tokens.client_secret;
-const public_key = api_tokens.public_key;
-
-// In case I want to send bot link v v
-const bot_invite = api_tokens.bot_invite;
 
 
 // ----- Official Discord Channel/Roles IDs ----- //
