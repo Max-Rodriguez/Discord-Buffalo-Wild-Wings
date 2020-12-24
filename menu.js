@@ -52,7 +52,7 @@ const foods = {
 
 const menu = {
 
-    "Mac & Cheese": 
+    "Mac And Cheese": 
 
         [ foods.pasta, foods.cheese, foods.milk, foods.flour, foods.butter, foods.salt ],
 
@@ -68,15 +68,15 @@ const menu = {
 
         [ foods.cheese, foods.breadcrums, foods.tomato, foods.garlic ],
 
-    "Chips & Salsa":
+    "Chips And Salsa":
 
         [ foods.potato, foods.salt, foods.pepper, foods.tomato ],
 
-    "Chicken Tenders":
+    "Classic Chicken Tenders":
 
         [ foods.chicken, foods.breadcrums, foods.butter, foods.salt ],
 
-    "All-American Cheeseburger":
+    "All American Cheeseburger":
 
         [ foods.bread, foods.cheese, foods.tomato, foods.beef, foods.onion, foods.lettuce ],
 
@@ -110,18 +110,18 @@ class Menu {
 
     getFoods() { return foods } // Returns Dictionary
     
-    getPlate(plate) { try { return menu[plate] } catch { return false } } // Returns Array
+    getPlate(plate) { if (menu[plate]) { return menu[plate] } else { return false } } // Returns Array
 
-    getFood(food) { try { return foods[food] } catch { return false } } // Returns String
+    getFood(food) { if (foods[food]) { return foods[food] } else { return false } } // Returns String
 
     // Return Plates as Strings
     // [Could've made it a smarter way, but who cares]
 
     plateString(title, ingredients) {
 
-        let template = "**--- " + title + " ---**\n";
+        let template = "**-------- " + title + " --------**\n\n";
 
-        for ( var i = 0; i <= ingredients.length; i++ ) {
+        for ( var i = 0; i < ingredients.length; i++ ) {
 
             let ingredient = ingredients[i];
 
@@ -129,7 +129,7 @@ class Menu {
 
         }
 
-        template = template.slice(0, -1); // Remove last '\n' [Its 1 character.]
+        template += "\n**------------------------------------------------**";
 
         return template;
 

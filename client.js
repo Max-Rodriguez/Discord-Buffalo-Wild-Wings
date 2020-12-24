@@ -92,11 +92,15 @@ client.on('ready', () => {
 
 client.on('message', msg => {
 
+    // Ping Test Command
+
     if (msg.content === prefix + 'ping') {
 
         msg.reply('Pong! Alright, now get back to working.');
 
     }
+
+    // Show List of Commands
 
     else if (msg.content === prefix + 'help') {
 
@@ -110,21 +114,23 @@ client.on('message', msg => {
         string += "    `$ping` - Pong! (I don't know, testing purposes?)\n\n";
         string += "    `$order` - Register a new order for the cooks to handle!\n\n";
         string += "    `$menu` - Direct Message's our official Buffalo Wild Wings menu!\n\n";
+        string += "    `$plate` - Shows the Ingredients of the specified plate from our menu!\n\n";
 
         msg.author.send(string);
 
     }
 
+    // Place New Order Command
+
     else if (msg.content === prefix + 'order') {
 
-        // Place Order
-
-        // Once Order Placed
         msg.reply('LOL you thought I made the order system already? Barely working out the menu system.');
 
     }
 
-    else if (msg.content === prefix + 'menu') {
+    // Send Full Menu Command
+
+    else if (msg.content === prefix + 'menu' || msg.content === prefix + 'plates') {
 
         let author = msg.author;
 
@@ -137,7 +143,39 @@ client.on('message', msg => {
         // Reply To Command
 
         author.send(string); // DM Menu String
-        msg.reply("**Alrighty! Sent you our full official menu!** 🍔"); // Public Reply
+        msg.reply("**Alrighty!** Sent you our full official menu! 🍔"); // Public Reply
+
+    }
+
+    else if (msg.content.substring(0, 7) === prefix + "plate ") {
+
+        let content = msg.content.toLowerCase();
+        let parameter = content.replace(prefix + "plate ", ""); // Remove Command Text
+
+        // Capitalize Phrases for Search.
+        parameter = parameter.split(" ");
+
+        for (let i = 0; i < parameter.length; i++) {
+
+            parameter[i] = parameter[i][0].toUpperCase() + parameter[i].substr(1);
+
+        }
+
+        parameter = parameter.join(" "); // Join all words that were split into one string.
+
+        let plate = Menu.getPlate(parameter); // Get Ingredients Array of Plate.
+
+        if (typeof plate === "object") {
+
+            let string = Menu.plateString(parameter, plate);
+
+            msg.channel.send(string);
+
+        } else {
+
+            msg.reply("❌ **Sorry!** We couldn't find that dish in our menu.");
+
+        }
 
     }
 
