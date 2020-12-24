@@ -121,7 +121,30 @@ class Menu {
 
         let template = "**-------- " + title + " --------**\n\n";
 
-        for ( var i = 0; i < ingredients.length; i++ ) {
+        // Make Bottom Divider Same Size As Title
+
+        let titleReplace = "";
+
+        for (let i = 0; i < title.length; i++) {
+
+            titleReplace += "-"; // Add dash per character
+
+        }
+
+        // Get All Matches of Search, join with replace.
+
+        function replaceAll(string, search, replace) {
+
+            return string.split(search).join(replace);
+
+        }
+
+        let divider = template.replace(title, titleReplace);
+        divider = replaceAll(divider, " ", "-");
+
+        // Form Ingredients List
+
+        for ( let i = 0; i < ingredients.length; i++ ) {
 
             let ingredient = ingredients[i];
 
@@ -129,7 +152,7 @@ class Menu {
 
         }
 
-        template += "\n**------------------------------------------------**";
+        template += "\n" + divider; // Add Divider
 
         return template;
 

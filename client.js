@@ -114,7 +114,8 @@ client.on('message', msg => {
         string += "    `$ping` - Pong! (I don't know, testing purposes?)\n\n";
         string += "    `$order` - Register a new order for the cooks to handle!\n\n";
         string += "    `$menu` - Direct Message's our official Buffalo Wild Wings menu!\n\n";
-        string += "    `$plate` - Shows the Ingredients of the specified plate from our menu!\n\n";
+        string += "    `$plate <menuItem>` - Shows the Ingredients of the specified plate from our menu!\n\n";
+        string += "    `$claim <orderID>` - Cooks Only Command! Claims a pending order.\n\n";
 
         msg.author.send(string);
 
@@ -124,7 +125,7 @@ client.on('message', msg => {
 
     else if (msg.content === prefix + 'order') {
 
-        msg.reply('LOL you thought I made the order system already? Barely working out the menu system.');
+        msg.reply('**Sorry!** Customers will be able to place orders in a future update.');
 
     }
 
@@ -147,7 +148,9 @@ client.on('message', msg => {
 
     }
 
-    else if (msg.content.substring(0, 7) === prefix + "plate ") {
+    // Search Plate Ingredients Command
+
+    else if (msg.content.substring(0, 6) === prefix + "plate") {
 
         let content = msg.content.toLowerCase();
         let parameter = content.replace(prefix + "plate ", ""); // Remove Command Text
@@ -176,6 +179,25 @@ client.on('message', msg => {
             msg.reply("❌ **Sorry!** We couldn't find that dish in our menu.");
 
         }
+
+    }
+
+    // Claim Pending Order Command
+
+    else if (msg.content.substring(0, 6) === prefix + "claim") {
+
+        let plr = msg.author;
+
+        if (msg.channel.id == kitchen_id) {
+
+            // Set Order Responsibility to User
+
+        } else {
+
+            msg.delete();
+            msg.author.send("**Sorry!** Only cooks can execute the claim order command!");
+
+         }
 
     }
 
