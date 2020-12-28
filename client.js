@@ -44,12 +44,40 @@ const orders_id = "790739643401895966";
 
 // ----- Handling Orders ----- //
 
-var orders = []; // Order Template: ["Customer", ["Food", "Food2"]]
+var pending = {
+    
+    "1": ["Test", "Fries"],
+
+}
+
+var claimed = {
+
+    // "User": ["ID", "Customer", "Plate"] <<== Template
+
+}
+
+
+// ----- Util Functions ----- //
+
+async function deleteMsg(msg) {
+
+    setTimeout( (msg) => {
+
+        msg.delete(); // Avoid Visual Chat Glitch
+
+    }, 500)
+
+}
 
 
 // ----- Discord Bot Client ----- //
 
 const client = new Discord.Client();
+
+// Channel Variables [On Scope]
+let updates;
+let kitchen;
+let orders;
 
 client.on('ready', () => {
 
@@ -77,18 +105,14 @@ client.on('ready', () => {
     setPresence()
 
     // Get Channel Instances
-    const updates = client.channels.cache.get(updates_id);
-    const kitchen = client.channels.cache.get(kitchen_id);
-    const orders = client.channels.cache.get(orders_id);
+    updates = client.channels.cache.get(updates_id);
+    kitchen = client.channels.cache.get(kitchen_id);
+    orders = client.channels.cache.get(orders_id);
 
     // Send Back Online Ping
     //updates.send("<@&" + cooks + "> Buffalo Wild Wings system is back online!");
 
 });
-
-// DISCLAIMER:
-//
-// The code below is VERY inefficient please do not repeat.
 
 client.on('message', msg => {
 
@@ -104,7 +128,7 @@ client.on('message', msg => {
 
     else if (msg.content === prefix + 'help') {
 
-        msg.delete(); // Remove Message
+        msg.delete({timeout: 100}); // Remove Message
 
         // Form Message String [lol this is the dumbest and laziest part]
 
@@ -186,16 +210,49 @@ client.on('message', msg => {
 
     else if (msg.content.substring(0, 6) === prefix + "claim") {
 
-        let plr = msg.author;
-
         if (msg.channel.id == kitchen_id) {
 
-            // Set Order Responsibility to User
+            let content = msg.content.toLowerCase();
+            let parameter = content.replace(prefix + "claim ", ""); // Remove Command Text
+
+            // Capitalize Phrases for Search.
+            parameter = parameter.split(" ");
+
+            for (let i = 0; i < parameter.length; i++) {
+
+                parameter[i] = parameter[i][0].toUpperCase() + parameter[i].substr(1);
+
+            }
+
+            parameter = parameter.join(" ");
+
+            // ----- Search For Pending Order ID If Valid ----- //
+
+            let returned = pending[parameter];
+
+            if ( typeof returned === "object" ) {
+
+                // Remove Pending Order
+                delete pending[parameter];
+
+                // Add Claimed Order In Progress [Assign By Username, add order information]
+                claimed[msg.author.username] = [parameter, returned[0], returned[1]];
+
+                // Announce Claimed Order
+                kitchen.send("✔️ **" + msg.author.username + "** has claimed Order ID: [ " + parameter + " ]");
+                msg.delete({timeout: 100});
+
+            } else {
+
+                msg.author.send("❌ **Sorry!** That Pending Order ID was invalid! Please try again.");
+                msg.delete({timeout: 100});
+
+            }
 
         } else {
 
-            msg.delete();
-            msg.author.send("**Sorry!** Only cooks can execute the claim order command!");
+            msg.author.send("❌ **Sorry!** Only cooks can execute the claim order command!");
+            msg.delete({timeout: 100});
 
          }
 
