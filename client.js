@@ -45,6 +45,8 @@ const orders_id = "790739643401895966";
 // ----- Handling Orders ----- //
 
 var pending = {
+
+    // "ID": ["Customer", "Plate"] <<== Pending Order Template
     
     "1": ["Test", "Fries"],
 
@@ -52,20 +54,7 @@ var pending = {
 
 var claimed = {
 
-    // "User": ["ID", "Customer", "Plate"] <<== Template
-
-}
-
-
-// ----- Util Functions ----- //
-
-async function deleteMsg(msg) {
-
-    setTimeout( (msg) => {
-
-        msg.delete(); // Avoid Visual Chat Glitch
-
-    }, 500)
+    // "User": ["ID", "Customer", "Plate", [ingredients_done]] <<== Claimed Order Template
 
 }
 
@@ -128,7 +117,12 @@ client.on('message', msg => {
 
     else if (msg.content === prefix + 'help') {
 
-        msg.delete({timeout: 100}); // Remove Message
+        if (msg.channel.type != "dm") {
+
+            // Remove Sent Message.
+            msg.delete({timeout: 100});
+            
+        }
 
         // Form Message String [lol this is the dumbest and laziest part]
 
@@ -212,49 +206,125 @@ client.on('message', msg => {
 
         if (msg.channel.id == kitchen_id) {
 
-            let content = msg.content.toLowerCase();
-            let parameter = content.replace(prefix + "claim ", ""); // Remove Command Text
+            // Check If Cook Has Already Claimed an Order.
 
-            // Capitalize Phrases for Search.
-            parameter = parameter.split(" ");
+            let flag = true;
 
-            for (let i = 0; i < parameter.length; i++) {
+            let search = claimed[msg.author.username];
 
-                parameter[i] = parameter[i][0].toUpperCase() + parameter[i].substr(1);
+            if (typeof search != "undefined") { flag = false; }
 
-            }
+            if (flag) {
 
-            parameter = parameter.join(" ");
+                let content = msg.content.toLowerCase();
+                let parameter = content.replace(prefix + "claim ", ""); // Remove Command Text
 
-            // ----- Search For Pending Order ID If Valid ----- //
+                // Capitalize Phrases for Search.
+                parameter = parameter.split(" ");
 
-            let returned = pending[parameter];
+                for (let i = 0; i < parameter.length; i++) {
 
-            if ( typeof returned === "object" ) {
+                    parameter[i] = parameter[i][0].toUpperCase() + parameter[i].substr(1);
 
-                // Remove Pending Order
-                delete pending[parameter];
+                }
 
-                // Add Claimed Order In Progress [Assign By Username, add order information]
-                claimed[msg.author.username] = [parameter, returned[0], returned[1]];
+                parameter = parameter.join(" ");
 
-                // Announce Claimed Order
-                kitchen.send("✔️ **" + msg.author.username + "** has claimed Order ID: [ " + parameter + " ]");
-                msg.delete({timeout: 100});
+                // ----- Search For Pending Order ID If Valid ----- //
+
+                let returned = pending[parameter];
+
+                if ( typeof returned === "object" ) {
+
+                    // Remove Pending Order
+                    delete pending[parameter];
+
+                    // Add Claimed Order In Progress [Assign By Username, add order information]
+                    claimed[msg.author.username] = [parameter, returned[0], returned[1]];
+
+                    // Announce Claimed Order
+                    kitchen.send("✅ **" + msg.author.username + "** has claimed Order ID: [ " + parameter + " ]");
+                    
+                    if (msg.channel.type != "dm") {
+
+                        msg.delete({timeout: 100});
+                        
+                    }
+
+                } else {
+
+                    msg.author.send("❌ **Sorry!** That Pending Order ID was invalid! Please try again.");
+                    
+                    if (msg.channel.type != "dm") {
+
+                        msg.delete({timeout: 100});
+                        
+                    }
+
+                }
 
             } else {
 
-                msg.author.send("❌ **Sorry!** That Pending Order ID was invalid! Please try again.");
-                msg.delete({timeout: 100});
+                msg.author.send("❌ You **cannot** claim more than 1 order at a time.");
+                
+                if (msg.channel.type != "dm") {
+
+                    msg.delete({timeout: 100});
+                    
+                }
 
             }
 
         } else {
 
             msg.author.send("❌ **Sorry!** Only cooks can execute the claim order command!");
-            msg.delete({timeout: 100});
+
+            if (msg.channel.type != "dm") {
+
+                msg.delete({timeout: 100});
+
+            }
 
          }
+
+    } else if (msg.content.substring(0, 4) === prefix + "add") {
+
+        if (msg.channel.id == kitchen_id) {
+
+            // ----- Get Argument From Message ----- //
+
+            let content = msg.content.toLowerCase();
+            let parameter = content.replace(prefix + "add ", "");
+
+            // ----- Validate Food Item, add to claimed order. ----- //
+
+            let food = Menu.getFood(parameter); // Either Returns Undefined or String.
+
+            if (typeof returned === "string") {
+
+                claimed[msg.author.username][3].push(food); // Add Food Item.
+
+                msg.author.send("✅ **Added " + food + " to your claimed order.**");
+
+                if (msg.channel.type != "dm") {
+
+                    msg.delete({timeout: 100});
+
+                }
+
+            } else {
+
+                msg.author.send("❌ **Error!** Requested Food was not found in our stock!");
+
+                if (msg.channel.type != "dm") {
+
+                    msg.delete({timeout: 100});
+
+                }
+
+            }
+
+        }
 
     }
 
