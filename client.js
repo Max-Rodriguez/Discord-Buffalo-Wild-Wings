@@ -77,14 +77,14 @@ client.on('ready', () => {
         setTimeout( () => {
 
             client.user.setStatus('idle')
-            .catch(console.warn("WARN: Error returned from setting User status."));
+            .catch( (err) => { console.warn("WARN: Error returned from setting User Status.") } );
 
         }, 1000 );
 
         setTimeout( () => {
 
             client.user.setActivity("for orders..", { type: 'WATCHING' })
-            .catch(console.warn("WARN: Error returned from setting User activity."));
+            .catch( (err) => { console.warn("WARN: Error returned from setting User Activity.") } );
 
         }, 2000 );
 
@@ -105,13 +105,8 @@ client.on('ready', () => {
 
 client.on('message', msg => {
 
-    // Ping Test Command
-
-    if (msg.content === prefix + 'ping') {
-
-        msg.reply('Pong! Alright, now get back to working.');
-
-    }
+    // If Message is a Direct Message, Return Out.
+    if ( msg.channel.type === "dm" ) { return }
 
     // Show List of Commands
 
@@ -124,7 +119,7 @@ client.on('message', msg => {
             
         }
 
-        // Form Message String [lol this is the dumbest and laziest part]
+        // Form Message String [Lazy Code]
 
         let string = "**-------- Below Is A List Of All My Commands! --------**\n\n";
 
@@ -240,7 +235,7 @@ client.on('message', msg => {
                     delete pending[parameter];
 
                     // Add Claimed Order In Progress [Assign By Username, add order information]
-                    claimed[msg.author.username] = [parameter, returned[0], returned[1]];
+                    claimed[msg.author.username] = [ parameter, returned[0], returned[1], [] ];
 
                     // Announce Claimed Order
                     kitchen.send("✅ **" + msg.author.username + "** has claimed Order ID: [ " + parameter + " ]");
@@ -287,7 +282,11 @@ client.on('message', msg => {
 
          }
 
-    } else if (msg.content.substring(0, 4) === prefix + "add") {
+    } 
+    
+    // Add Ingredient Command
+    
+    else if (msg.content.substring(0, 4) === prefix + "add") {
 
         if (msg.channel.id == kitchen_id) {
 
@@ -300,7 +299,7 @@ client.on('message', msg => {
 
             let food = Menu.getFood(parameter); // Either Returns Undefined or String.
 
-            if (typeof returned === "string") {
+            if (typeof food === "string") {
 
                 claimed[msg.author.username][3].push(food); // Add Food Item.
 
@@ -325,6 +324,14 @@ client.on('message', msg => {
             }
 
         }
+
+    } 
+    
+    // Show Order Assembled Ingredients Command
+    
+    else if (msg.content.substring(0, 6) === prefix + "build") {
+
+        // Direct Message Working Order's Assembled Ingredients.
 
     }
 
